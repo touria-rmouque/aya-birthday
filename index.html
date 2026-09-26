@@ -197,7 +197,7 @@
     background:var(--cream); box-shadow:0 2px 6px var(--shadow);
   }
   .wheel-label{
-    position:absolute; width:78px; text-align:center; font-size:0.62rem; font-weight:700;
+    position:absolute; width:78px; text-align:center; font-size:0.85rem; font-weight:700;
     color:var(--rose-text); transform:translate(-50%,-50%); line-height:1.25; word-wrap:break-word;
   }
   .spin-btn{
@@ -284,23 +284,36 @@
   .love-message.show{ opacity:1; transform:translateY(0); }
 
   /* ---------- memory wall ---------- */
-  .memories{ text-align:center; }
+  .memories{ text-align:center; max-width:960px; }
   .memories h2{ color:var(--pink-deeper); font-size:clamp(1.7rem,4vw,2.3rem); }
   .memories .sub{ color:var(--rose-soft); margin-top:0.4rem; margin-bottom:2.2rem; }
-  .polaroid-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:1.6rem 1.3rem; }
-  .polaroid{ background:#fff; padding:0.55rem 0.55rem 1.1rem; border-radius:6px; box-shadow:0 12px 26px var(--shadow); }
-  .polaroid:nth-child(odd){ transform:rotate(-3deg); }
-  .polaroid:nth-child(even){ transform:rotate(2.5deg); }
-  .polaroid:nth-child(3n){ transform:rotate(-1.5deg); }
+  .polaroid-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:1.8rem 1.4rem; }
+  .polaroid{
+    background:#fff; padding:0.8rem 0.8rem 1.3rem; border-radius:8px; box-shadow:0 14px 30px var(--shadow);
+    opacity:0; transition: opacity .7s ease, transform .7s cubic-bezier(.22,.68,.24,1);
+  }
+  .polaroid:nth-child(odd){ transform:translateY(28px) rotate(-3deg); }
+  .polaroid:nth-child(even){ transform:translateY(28px) rotate(2.5deg); }
+  .polaroid:nth-child(3n){ transform:translateY(28px) rotate(-1.5deg); }
+  .polaroid.in-view:nth-child(odd){ opacity:1; transform:translateY(0) rotate(-3deg); }
+  .polaroid.in-view:nth-child(even){ opacity:1; transform:translateY(0) rotate(2.5deg); }
+  .polaroid.in-view:nth-child(3n){ opacity:1; transform:translateY(0) rotate(-1.5deg); }
+  .polaroid:hover{ box-shadow:0 20px 40px var(--shadow); }
   .polaroid-photo{
-    aspect-ratio:1/1; background:linear-gradient(135deg,#ffe6ef,#ffd3e2); border-radius:3px;
+    aspect-ratio:1/1; background:linear-gradient(135deg,#ffe6ef,#ffd3e2); border-radius:4px;
     overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative;
   }
   .polaroid-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
   .polaroid-photo.empty::before{
-    content:'📷 add a photo'; font-family:'Quicksand', sans-serif; font-size:0.78rem; color:var(--rose-soft);
+    content:'📷 add a photo'; font-family:'Quicksand', sans-serif; font-size:0.85rem; color:var(--rose-soft);
   }
-  .polaroid figcaption{ margin-top:0.6rem; font-family:'Caveat', cursive; font-size:1.15rem; color:var(--rose-text); }
+  .polaroid figcaption{ margin-top:0.7rem; font-family:'Caveat', cursive; font-size:1.3rem; color:var(--rose-text); }
+  @media (min-width:600px){
+    .polaroid-grid{ grid-template-columns:repeat(3, 1fr); }
+  }
+  @media (min-width:900px){
+    .polaroid-grid{ grid-template-columns:repeat(4, 1fr); }
+  }
   .howto{
     margin:2.4rem auto 0; background:var(--cream); border:1px dashed var(--pink-mid); border-radius:14px;
     padding:1rem 1.3rem; font-size:0.83rem; color:var(--rose-soft); text-align:left; max-width:460px;
@@ -310,11 +323,23 @@
   @media (prefers-reduced-motion: reduce){
     .balloon, .candle .flame, .scroll-cue span, .hero h1{ animation:none !important; }
   }
+
+  /* ---------- music toggle ---------- */
+  .music-btn{
+    position:fixed; bottom:18px; right:18px; z-index:30; font-family:'Fredoka', sans-serif;
+    font-weight:600; font-size:0.85rem; color:#fff;
+    background:linear-gradient(135deg, var(--pink-deep), var(--pink-deeper)); border:none;
+    padding:0.7rem 1.15rem; border-radius:999px; cursor:pointer; box-shadow:0 10px 24px var(--shadow);
+    transition: transform .15s ease;
+  }
+  .music-btn:hover{ transform:translateY(-2px) scale(1.03); }
 </style>
 </head>
 <body>
 
 <div class="balloons" id="balloons"></div>
+
+<button class="music-btn" id="musicBtn">🎵 Play music</button>
 
 <section class="hero">
   <div class="eyebrow-ribbon">a little corner of the internet, just for you</div>
@@ -332,16 +357,16 @@
 <section class="age-wrap">
   <div class="age-number">25</div>
   <p>
-    Twenty-five looks so good on you. Here's to a <span class="tr-word" title="huzurlu = peaceful">huzurlu</span>
-    year ahead — gentle mornings, warm coffee, quiet <span class="tr-word" title="mutluluk = happiness">mutluluk</span>,
+    Twenty-five looks so good on you. Here's to a huzurlu
+    year ahead, gentle mornings, warm coffee, quiet mutluluk,
     and every soft thing you've been wishing for, canım.
   </p>
 </section>
 
 <section class="architect-section">
-  <h2>To the mimar 📐</h2>
+  <h2>To the mimar 👷🏼‍♀️ </h2>
   <p>
-    Most people can't picture a room before it exists. You always could —
+    Most people can't picture a room before it exists. You always could
     turning blank pages into blueprints, and blueprints into places people
     actually walk through, sit in, live in. Here's to another year of
     drawing things the rest of us can't see yet, canım.
@@ -378,7 +403,7 @@
       <div class="plate"></div>
     </div>
   </div>
-  <div class="cake-hint" id="cakeHint">5 candles left — good luck!</div>
+  <div class="cake-hint" id="cakeHint">5 candles left good luck!</div>
 </section>
 
 <section class="note-wrap">
@@ -386,7 +411,7 @@
     <div class="tape"></div>
     <p>To my tatlım Aya,</p>
     <p>
-      Wishing you a year as bright and sweet as you are — mutlu (happy), full, and entirely yours.
+      Wishing you a year as bright and sweet as you are mutlu (happy), full, and entirely yours.
       Thank you for being such a good dostum. Sending pastel hugs and way too much confetti today. 🩷
     </p>
     <div class="sign">— Touria</div>
@@ -425,12 +450,18 @@
   <h2>Our little memory wall 📸</h2>
   <p class="sub">a few of our souvenirs</p>
   <div class="polaroid-grid">
-    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory1.jpg" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>the first one 🌸</figcaption></figure>
-    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory2.jpg" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>that random Tuesday</figcaption></figure>
-    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory3.jpg" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>best kind of trouble</figcaption></figure>
-    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory4.jpg" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>coffee &amp; gossip ☕</figcaption></figure>
-    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory5.jpg" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>the trip we still talk about</figcaption></figure>
-    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory6.jpg" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>just us 🩷</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory1.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>The first one 🌸</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory2.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>That random Tuesday 📆</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory3.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Us with our friends 🤗</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory4.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>My birthday with you 🎂</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory5.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Trying the Amal Way bus for the first time 🚌</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory6.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Playing tennis together 🎾</figcaption></figure>
+     <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory7.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Random day in work 💼</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory8.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Just us 🩷</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory9.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Coffee &amp; gossip ☕</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory10.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Going to the amusement park together 🎢</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory11.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Enjoying Manal's concert together🎤</figcaption></figure>
+    <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory12.png" alt="" onerror="this.onerror=null;this.remove();this.parentElement.classList.add('empty');"></div><figcaption>Working hard, hahaha! 😅</figcaption></figure>
   </div>
 </section>
 
@@ -534,8 +565,8 @@
     setTimeout(() => {
       racing = false;
       raceBtn.disabled = false;
-      raceBtn.textContent = 'Race again 🏎️';
-      f1Result.textContent = 'Happy Birthday, Aya! 🏁🎂 — straight from the Formula One finish line.';
+      raceBtn.textContent = 'Race again';
+      f1Result.textContent = 'Happy Birthday, Aya! straight from the Formula One finish line 🏁.';
       f1Result.classList.add('show');
       if (typeof confetti === 'function'){
         confetti({ particleCount: 120, spread: 100, startVelocity: 35,
@@ -602,7 +633,7 @@
   noBtn.addEventListener('click', (e) => {
     e.preventDefault();
     dodgeNo();
-    revealLove("Nice try 😏 — but the real answer is yes, canım.");
+    revealLove("Nice try 😏 but the real answer is yes, canım.");
   });
   yesBtn.addEventListener('click', () => {
     revealLove("Of course I do, dostum. Mutlu yıllar, always yours. 🥹💗");
@@ -640,13 +671,87 @@
       c.classList.add('out');
       litCount--;
       if (litCount > 0){
-        hint.textContent = litCount + (litCount === 1 ? ' candle left — go on!' : ' candles left — good luck!');
+        hint.textContent = litCount + (litCount === 1 ? ' candle left go on!' : ' candles left good luck!');
       } else {
         hint.textContent = 'Wish made ✨ mutlu yıllar, Aya!';
         done = true;
         fireConfetti();
       }
     });
+  });
+
+  // scroll-reveal animation for the memory wall photos
+  const revealTargets = document.querySelectorAll('.polaroid');
+  if ('IntersectionObserver' in window){
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealTargets.forEach(el => revealObserver.observe(el));
+  } else {
+    revealTargets.forEach(el => el.classList.add('in-view'));
+  }
+
+  // background music: a synthesized "Happy Birthday" 
+ 
+  const NOTE_FREQ = { C:261.63, D:293.66, E:329.63, F:349.23, G:392.00, A:440.00, Bb:466.16, C5:523.25 };
+  const MELODY = [
+    ['C',1],['C',1],['D',2],['C',2],['F',2],['E',4],
+    ['C',1],['C',1],['D',2],['C',2],['G',2],['F',4],
+    ['C',1],['C',1],['C5',2],['A',2],['F',2],['E',2],['D',4],
+    ['Bb',1],['Bb',1],['A',2],['F',2],['G',2],['F',4],
+  ];
+  const BEAT = 0.22;
+  const TOTAL_BEATS = MELODY.reduce((sum, [, beats]) => sum + beats, 0);
+
+  let audioCtx = null;
+  let musicPlaying = false;
+  let musicLoopTimer = null;
+  const musicBtn = document.getElementById('musicBtn');
+
+  function playMelodyOnce(){
+    const ctx = audioCtx;
+    let t = ctx.currentTime + 0.05;
+    MELODY.forEach(([note, beats]) => {
+      const freq = NOTE_FREQ[note];
+      const dur = beats * BEAT;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.9);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + dur);
+      t += dur;
+    });
+  }
+
+  musicBtn.addEventListener('click', () => {
+    if (!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (musicPlaying){
+      musicPlaying = false;
+      clearTimeout(musicLoopTimer);
+      musicBtn.textContent = '▶ Play music';
+    } else {
+      musicPlaying = true;
+      musicBtn.textContent = '⏸ Pause music';
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const loop = () => {
+        playMelodyOnce();
+        const loopMs = TOTAL_BEATS * BEAT * 1000 + 900;
+        musicLoopTimer = setTimeout(() => { if (musicPlaying) loop(); }, loopMs);
+      };
+      loop();
+    }
   });
 </script>
 </body>
