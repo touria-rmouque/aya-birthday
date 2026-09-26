@@ -339,7 +339,7 @@
 
 <div class="balloons" id="balloons"></div>
 
-<button class="music-btn" id="musicBtn">🎵 Play music</button>
+<button class="music-btn" id="musicBtn">Play music</button>
 
 <section class="hero">
   <div class="eyebrow-ribbon">a little corner of the internet, just for you</div>
@@ -740,10 +740,10 @@
     if (musicPlaying){
       musicPlaying = false;
       clearTimeout(musicLoopTimer);
-      musicBtn.textContent = '▶ Play music';
+      musicBtn.textContent = 'Play music';
     } else {
       musicPlaying = true;
-      musicBtn.textContent = '⏸ Pause music';
+      musicBtn.textContent = 'Pause music';
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const loop = () => {
         playMelodyOnce();
