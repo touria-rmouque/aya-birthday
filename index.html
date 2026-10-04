@@ -162,14 +162,59 @@
   }
   .age-wrap p{max-width:36ch;margin:2rem auto 0;}
 
-  /* ---------- architect ---------- */
-  .frame{position:relative;max-width:50ch;margin:2.2rem auto 0;padding:clamp(2.2rem,6vw,3.4rem) clamp(1.6rem,5vw,3rem);text-align:left;overflow:hidden;}
-  .frame::before{
-    content:"";position:absolute;inset:0;opacity:.55;pointer-events:none;
-    background-image:linear-gradient(rgba(232,81,126,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(232,81,126,.1) 1px,transparent 1px);
-    background-size:26px 26px;mask-image:radial-gradient(circle at 50% 50%,#000 30%,transparent 85%);-webkit-mask-image:radial-gradient(circle at 50% 50%,#000 30%,transparent 85%);
+  /* ---------- architect / mimar ---------- */
+  .arch-badge{
+    position:relative;width:84px;height:84px;margin:0 auto 1.4rem;border-radius:26px;display:grid;place-items:center;color:#fff;
+    background:linear-gradient(145deg,#ff7aa2,var(--rose-deep));
+    box-shadow:0 20px 40px -12px var(--shadow),inset 0 1px 0 rgba(255,255,255,.5);
+    transform:rotate(-6deg);animation:badgeFloat 5s ease-in-out infinite;
   }
-  .frame p{position:relative;margin:0;}
+  .arch-badge::after{content:"";position:absolute;inset:-8px;border-radius:32px;border:1.5px dashed var(--rose-light);opacity:.7;}
+  .arch-badge svg{width:46px;height:46px;}
+  @keyframes badgeFloat{0%,100%{transform:rotate(-6deg) translateY(0);}50%{transform:rotate(-3deg) translateY(-6px);}}
+
+  .blueprint{
+    position:relative;overflow:hidden;max-width:560px;margin:2.4rem auto 0;text-align:left;color:#fff;
+    padding:clamp(1.8rem,5vw,2.6rem) clamp(1.5rem,5vw,2.6rem) 0;border-radius:22px;
+    background:
+      linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px) 0 0/24px 24px,
+      linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px) 0 0/24px 24px,
+      linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px) 0 0/6px 6px,
+      linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px) 0 0/6px 6px,
+      linear-gradient(140deg,#c93a68,#8f2448);
+    box-shadow:0 40px 80px -24px rgba(143,36,72,.6),inset 0 0 0 1px rgba(255,255,255,.18);
+  }
+  .blueprint .crop{position:absolute;width:20px;height:20px;border:2px solid rgba(255,255,255,.7);}
+  .blueprint .tl{top:12px;left:12px;border-right:none;border-bottom:none;}
+  .blueprint .tr{top:12px;right:12px;border-left:none;border-bottom:none;}
+  .blueprint .bl{bottom:12px;left:12px;border-right:none;border-top:none;}
+  .blueprint .br{bottom:12px;right:12px;border-left:none;border-top:none;}
+  .dim{
+    display:flex;align-items:center;gap:.7rem;margin:.4rem 0 1.5rem;
+    font-size:.7rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.85);
+  }
+  .dim::before,.dim::after{
+    content:"";flex:1;height:10px;
+    background:
+      linear-gradient(currentColor,currentColor) center/100% 1px no-repeat,
+      linear-gradient(currentColor,currentColor) left/1px 100% no-repeat,
+      linear-gradient(currentColor,currentColor) right/1px 100% no-repeat;
+  }
+  .blueprint p{position:relative;z-index:1;margin:0;font-size:clamp(1.02rem,.98rem + .3vw,1.16rem);line-height:1.75;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.12);}
+  .plan{position:absolute;right:-6px;bottom:52px;width:min(62%,300px);color:#fff;opacity:.22;pointer-events:none;}
+  .plan path,.plan rect,.plan line{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .js .plan *{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.6s var(--ease);}
+  .js .reveal.in .plan *{stroke-dashoffset:0;}
+  .js .plan *:nth-child(2){transition-delay:.3s;} .js .plan *:nth-child(3){transition-delay:.6s;}
+  .js .plan *:nth-child(4){transition-delay:.9s;} .js .plan *:nth-child(5){transition-delay:1.2s;}
+  .js .plan *:nth-child(6){transition-delay:1.5s;}
+  .titleblock{
+    position:relative;z-index:1;display:grid;grid-template-columns:1.2fr 1fr 1fr;margin:1.8rem calc(-1 * clamp(1.5rem,5vw,2.6rem)) 0;
+    border-top:1px solid rgba(255,255,255,.45);background:rgba(0,0,0,.14);
+  }
+  .titleblock div{padding:.8rem 1.1rem;font-family:var(--font-display);font-weight:700;font-size:1.05rem;line-height:1.2;}
+  .titleblock div + div{border-left:1px solid rgba(255,255,255,.35);}
+  .titleblock small{display:block;font-family:var(--font-body);font-weight:600;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:.2rem;}
 
   /* ---------- F1 ---------- */
   .f1-icon{width:.8em;height:.8em;display:inline-block;vertical-align:-.05em;}
@@ -411,14 +456,29 @@
 </section>
 
 <section class="architect-section reveal">
-  <h2>To the <span class="tr-word" title="mimar = architect">mimar</span> 👷🏼‍♀️</h2>
-  <div class="frame glass">
+  <h2>To the <span class="tr-word" title="mimar = architect">mimar</span> 📐</h2>
+  <div class="blueprint">
+    <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
+    <svg class="plan" viewBox="0 0 200 140" aria-hidden="true">
+      <rect pathLength="1" x="8" y="8" width="184" height="124"/>
+      <path pathLength="1" d="M84 8V72H8"/>
+      <path pathLength="1" d="M84 100V132"/>
+      <path pathLength="1" d="M132 8V60H192"/>
+      <path pathLength="1" d="M84 72a16 16 0 0 1 16 16M132 60a14 14 0 0 0 -14 14"/>
+      <line pathLength="1" x1="30" y1="8" x2="60" y2="8"/>
+    </svg>
+    <div class="dim"><span>25 years of design</span></div>
     <p>
       Most people can't picture a room before it exists. You always could,
       turning blank pages into blueprints, and blueprints into places people
       actually walk through, sit in, live in. Here's to another year of
       drawing things the rest of us can't see yet, canım.
     </p>
+    <div class="titleblock">
+      <div><small>Project</small>Aya</div>
+      <div><small>Scale</small>1 : 25</div>
+      <div><small>Sheet</small>01 / 01</div>
+    </div>
   </div>
 </section>
 
