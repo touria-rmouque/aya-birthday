@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';document.head.appendChild(s);"></script>
 <script>document.documentElement.classList.add('js');</script>
 <style>
   :root{
@@ -545,9 +545,23 @@
 <script>
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const PALETTE = ['#ffb8cf','#ff6f91','#f4c95d','#ffffff'];
+  // Own confetti canvas, drawn on the main thread (no Web Worker), so it also works in sandboxed previews
+  let confettiFn = null;
+  function getConfetti(){
+    if (confettiFn) return confettiFn;
+    if (typeof confetti !== 'function') return null;
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+    canvas.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(canvas);
+    confettiFn = confetti.create(canvas, { resize:true, useWorker:false });
+    return confettiFn;
+  }
   function fire(opts){
-    if (typeof confetti !== 'function') return;
-    confetti(Object.assign({ disableForReducedMotion:true, colors:PALETTE }, opts));
+    const cf = getConfetti();
+    if (!cf) { console.warn('confetti library not loaded'); return; }
+    try { cf(Object.assign({ colors:PALETTE }, opts)); }
+    catch (err) { console.warn('confetti error', err); }
   }
 
   /* ---------- scroll progress + reveals ---------- */
@@ -720,63 +734,123 @@
   });
   yesBtn.addEventListener('click', () => revealLove("Of course I do, dostum. Mutlu yıllar, always yours. 🥹💗"));
 
-  /* ---------- music: synthesized "Happy Birthday" ---------- */
-  const NOTE_FREQ = { C:261.63, D:293.66, E:329.63, F:349.23, G:392.00, A:440.00, Bb:466.16, C5:523.25 };
-  const MELODY = [
-    ['C',1],['C',1],['D',2],['C',2],['F',2],['E',4],
-    ['C',1],['C',1],['D',2],['C',2],['G',2],['F',4],
-    ['C',1],['C',1],['C5',2],['A',2],['F',2],['E',2],['D',4],
-    ['Bb',1],['Bb',1],['A',2],['F',2],['G',2],['F',4],
+  /* ---------- music: "Happy Birthday" music-box, played once ---------- */
+  const NOTES = {
+    G2:98.00, C3:130.81, G3:196.00, B3:246.94, C4:261.63, D4:293.66, E4:329.63,
+    G4:392.00, A4:440.00, B4:493.88, C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99, C6:1046.50
+  };
+  const BIRTHDAY = [
+    ['G4',.75],['G4',.25],
+    ['A4',1],['G4',1],['C5',1],
+    ['B4',2],['G4',.75],['G4',.25],
+    ['A4',1],['G4',1],['D5',1],
+    ['C5',2],['G4',.75],['G4',.25],
+    ['G5',1],['E5',1],['C5',1],
+    ['B4',1],['A4',1],['F5',.75],['F5',.25],
+    ['E5',1],['C5',1],['D5',1],
+    ['C5',3],
   ];
-  const BEAT = 0.22;
-  const TOTAL_BEATS = MELODY.reduce((s,[,b]) => s + b, 0);
-  let audioCtx = null, musicPlaying = false, musicTimer = null;
+  const CHORDS = {
+    C:{ bass:'C3', notes:['C4','E4','G4'] },
+    G:{ bass:'G2', notes:['G3','B3','D4'] },
+  };
+  const BAR_CHORDS = ['C','G','G','C','C','G','G','C'];
+  const BEAT = 0.62, PICKUP = 1, TAIL = 3.4;
+  const TOTAL_BEATS = BIRTHDAY.reduce((s,[,b]) => s + b, 0);
+
+  let audioCtx = null, musicPlaying = false, musicTimer = null, currentMaster = null;
   const musicBtn = document.getElementById('musicBtn');
   const musicLabel = document.getElementById('musicLabel');
 
-  function playMelodyOnce(){
-    const ctx = audioCtx;
-    let t = ctx.currentTime + .05;
-    MELODY.forEach(([note, beats]) => {
-      const dur = beats * BEAT;
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(.0001, t);
-      gain.gain.exponentialRampToValueAtTime(.2, t + .025);
-      gain.gain.exponentialRampToValueAtTime(.0001, t + dur * .92);
-      gain.connect(ctx.destination);
-      [['sine',1,1],['triangle',2,.25]].forEach(([type, mult, vol]) => {
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
-        osc.type = type;
-        osc.frequency.value = NOTE_FREQ[note] * mult;
-        g.gain.value = vol;
-        osc.connect(g).connect(gain);
-        osc.start(t);
-        osc.stop(t + dur);
-      });
-      t += dur;
+  // one soft bell / music-box note (fundamental + a few shimmering partials)
+  function bell(ctx, bus, freq, t, ring, vol){
+    [[1,1,1],[2,.38,.55],[3,.14,.35],[4.07,.06,.18]].forEach(([mult, amp, decay]) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const end = t + ring * decay;
+      o.type = 'sine';
+      o.frequency.value = freq * mult;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol * amp, t + .01);
+      g.gain.exponentialRampToValueAtTime(.0001, end);
+      o.connect(g).connect(bus);
+      o.start(t);
+      o.stop(end + .05);
     });
+  }
+
+  function scheduleBirthday(){
+    const ctx = audioCtx;
+    const master = ctx.createGain();
+    master.gain.value = .55;
+    master.connect(ctx.destination);
+
+    const bus = ctx.createGain();
+    bus.connect(master);
+    // soft echo for a dreamy tail
+    const delay = ctx.createDelay(1); delay.delayTime.value = .27;
+    const fb = ctx.createGain(); fb.gain.value = .3;
+    const tone = ctx.createBiquadFilter(); tone.type = 'lowpass'; tone.frequency.value = 2600;
+    const wet = ctx.createGain(); wet.gain.value = .28;
+    bus.connect(delay); delay.connect(tone); tone.connect(fb); fb.connect(delay);
+    tone.connect(wet); wet.connect(master);
+
+    const t0 = ctx.currentTime + .1;
+
+    // melody
+    let t = t0;
+    BIRTHDAY.forEach(([n, b]) => {
+      bell(ctx, bus, NOTES[n], t, b >= 3 ? 3.4 : Math.max(b * BEAT * 1.7, .7), .5);
+      t += b * BEAT;
+    });
+
+    // waltz accompaniment: bass on beat 1, chord on beats 2 and 3
+    BAR_CHORDS.forEach((name, i) => {
+      const c = CHORDS[name];
+      const bt = t0 + (PICKUP + i * 3) * BEAT;
+      if (i === BAR_CHORDS.length - 1){
+        bell(ctx, bus, NOTES[c.bass], bt, 3.6, .3);
+        c.notes.forEach((n, j) => bell(ctx, bus, NOTES[n], bt + j * .03, 3.4, .12));
+        // little sparkle on the last chord
+        ['E5','G5','C6'].forEach((n, j) => bell(ctx, bus, NOTES[n], bt + (1.3 + j * .25) * BEAT, 1.8, .16));
+      } else {
+        bell(ctx, bus, NOTES[c.bass], bt, BEAT * 2.2, .3);
+        [1, 2].forEach(k => c.notes.forEach((n, j) => bell(ctx, bus, NOTES[n], bt + k * BEAT + j * .012, BEAT * 1.2, .1)));
+      }
+    });
+
+    return { master, duration: TOTAL_BEATS * BEAT + TAIL };
+  }
+
+  function setMusicUI(on){
+    musicBtn.classList.toggle('on', on);
+    musicBtn.setAttribute('aria-pressed', String(on));
+    musicLabel.textContent = on ? 'Stop music' : 'Play music';
   }
   function startMusic(){
     if (musicPlaying) return;
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
+    const { master, duration } = scheduleBirthday();
+    currentMaster = master;
     musicPlaying = true;
-    musicBtn.classList.add('on');
-    musicBtn.setAttribute('aria-pressed', 'true');
-    musicLabel.textContent = 'Pause music';
-    const loop = () => {
-      playMelodyOnce();
-      musicTimer = setTimeout(() => { if (musicPlaying) loop(); }, TOTAL_BEATS * BEAT * 1000 + 900);
-    };
-    loop();
+    setMusicUI(true);
+    musicTimer = setTimeout(endMusic, duration * 1000); // plays once, then stops by itself
   }
-  function stopMusic(){
+  function endMusic(){
     musicPlaying = false;
     clearTimeout(musicTimer);
-    musicBtn.classList.remove('on');
-    musicBtn.setAttribute('aria-pressed', 'false');
-    musicLabel.textContent = 'Play music';
+    setMusicUI(false);
+  }
+  function stopMusic(){
+    if (currentMaster && audioCtx){
+      const m = currentMaster, now = audioCtx.currentTime;
+      m.gain.cancelScheduledValues(now);
+      m.gain.setValueAtTime(m.gain.value, now);
+      m.gain.linearRampToValueAtTime(0, now + .2);
+      setTimeout(() => m.disconnect(), 400);
+    }
+    endMusic();
   }
   musicBtn.addEventListener('click', () => musicPlaying ? stopMusic() : startMusic());
 
@@ -790,12 +864,13 @@
   }
   function firePartyPoppers(){
     const colors = ['#ffb8cf','#ff6f91','#f4c95d','#ffe0eb','#ffffff'];
-    const end = Date.now() + 1100;
-    (function frame(){
-      fire({ particleCount:5, angle:60, spread:55, startVelocity:50, origin:{ x:0, y:.9 }, colors });
-      fire({ particleCount:5, angle:120, spread:55, startVelocity:50, origin:{ x:1, y:.9 }, colors });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    })();
+    const shoot = () => {
+      fire({ particleCount:16, angle:60,  spread:65, startVelocity:58, origin:{ x:0, y:.85 }, colors });
+      fire({ particleCount:16, angle:120, spread:65, startVelocity:58, origin:{ x:1, y:.85 }, colors });
+    };
+    shoot();
+    let n = 0;
+    const id = setInterval(() => { shoot(); if (++n >= 12) clearInterval(id); }, 110);
   }
   function fireSparks(){
     const o = { spread:360, gravity:.45, decay:.92, shapes:['star'], colors:['#f4c95d','#fff2b8','#ffffff'], origin:{ y:.5 } };
