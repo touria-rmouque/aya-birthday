@@ -99,7 +99,7 @@
     background:linear-gradient(120deg,#ff7aa2 0%,var(--rose) 45%,#ff9a76 100%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  .tr-word{font-weight:600;color:var(--rose-deep);border-bottom:2px dotted var(--rose-light);cursor:help;}
+  .tr-word{font-weight:600;color:var(--rose-deep);}
 
   .btn{
     position:relative;overflow:hidden;isolation:isolate;font-family:var(--font-display);font-weight:700;font-size:1.02rem;
@@ -163,16 +163,6 @@
   .age-wrap p{max-width:36ch;margin:2rem auto 0;}
 
   /* ---------- architect / mimar ---------- */
-  .arch-badge{
-    position:relative;width:84px;height:84px;margin:0 auto 1.4rem;border-radius:26px;display:grid;place-items:center;color:#fff;
-    background:linear-gradient(145deg,#ff7aa2,var(--rose-deep));
-    box-shadow:0 20px 40px -12px var(--shadow),inset 0 1px 0 rgba(255,255,255,.5);
-    transform:rotate(-6deg);animation:badgeFloat 5s ease-in-out infinite;
-  }
-  .arch-badge::after{content:"";position:absolute;inset:-8px;border-radius:32px;border:1.5px dashed var(--rose-light);opacity:.7;}
-  .arch-badge svg{width:46px;height:46px;}
-  @keyframes badgeFloat{0%,100%{transform:rotate(-6deg) translateY(0);}50%{transform:rotate(-3deg) translateY(-6px);}}
-
   .blueprint{
     position:relative;overflow:hidden;max-width:560px;margin:2.4rem auto 0;text-align:left;color:#fff;
     padding:clamp(1.8rem,5vw,2.6rem) clamp(1.5rem,5vw,2.6rem) 0;border-radius:22px;
@@ -371,6 +361,43 @@
   .lightbox img{width:100%;max-height:72vh;object-fit:contain;border-radius:6px;display:block;background:var(--blush);}
   .lightbox figcaption{margin-top:.9rem;font-family:var(--font-hand);font-size:1.7rem;text-align:center;}
   .lightbox .close{position:absolute;top:-16px;right:-8px;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;background:var(--rose);color:#fff;font-size:1.2rem;box-shadow:0 10px 20px rgba(0,0,0,.25);}
+
+  /* ---------- friends' messages ---------- */
+  .messages{max-width:1000px;}
+  .msg-grid{display:grid;grid-template-columns:1fr;gap:1.8rem;text-align:left;}
+  @media (min-width:700px){
+    .msg-grid{grid-template-columns:repeat(2,1fr);gap:2rem 1.8rem;align-items:start;}
+    .msg-card:nth-child(even){margin-top:2.2rem;}
+    .msg-card:last-child:nth-child(odd){grid-column:1 / -1;justify-self:center;width:calc(50% - .9rem);}
+  }
+  .msg-card{
+    position:relative;padding:2.6rem 1.8rem 1.4rem;border-radius:28px;background:var(--tint,#fff0f5);
+    border:1px solid rgba(255,255,255,.9);box-shadow:0 28px 54px -24px var(--shadow),inset 0 1px 0 rgba(255,255,255,.9);
+    rotate:-.8deg;cursor:default;
+    transition:opacity 1s var(--ease) var(--d,0s),transform 1s var(--ease) var(--d,0s),filter 1s var(--ease) var(--d,0s),
+               rotate .5s var(--spring),translate .5s var(--spring),box-shadow .4s var(--ease);
+  }
+  .msg-card:nth-child(even){rotate:.8deg;}
+  .msg-card:nth-child(1){--tint:#fff0f5;}
+  .msg-card:nth-child(2){--tint:#f3ebff;}
+  .msg-card:nth-child(3){--tint:#fff1ea;}
+  .msg-card:nth-child(4){--tint:#fffaf9;}
+  .msg-card:nth-child(5){--tint:#fdeefa;}
+  .msg-card:nth-child(6){--tint:#ecf5ff;}
+  .msg-card:nth-child(7){--tint:#fff4e0;}
+  .msg-card:hover{rotate:0deg;translate:0 -6px;box-shadow:0 38px 60px -24px var(--shadow),inset 0 1px 0 rgba(255,255,255,.9);}
+  .msg-card::before{
+    content:"\201C";position:absolute;top:.5rem;left:1.3rem;font-family:var(--font-display);font-weight:800;
+    font-size:5.2rem;line-height:1;color:var(--rose-light);opacity:.55;pointer-events:none;
+  }
+  .msg-card p{position:relative;margin:0;font-size:1.04rem;line-height:1.75;}
+  .msg-from{display:flex;align-items:center;gap:.8rem;margin-top:1.4rem;padding-top:1rem;border-top:1.5px dashed rgba(201,58,104,.3);}
+  .msg-from .av{
+    flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font-family:var(--font-display);font-weight:700;font-size:1.1rem;
+    background:linear-gradient(145deg,#ff7aa2,var(--rose-deep));box-shadow:0 8px 16px -6px var(--shadow);
+  }
+  .msg-from b{font-family:var(--font-hand);font-weight:700;font-size:1.9rem;line-height:1;color:var(--rose-deep);}
 
   /* ---------- bubble, hearts ---------- */
   .compliment-bubble{
@@ -585,6 +612,42 @@
     <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory10.png" alt="Memory: Amusement park together" loading="lazy"></div><figcaption>Going to the amusement park together 🎢</figcaption></figure>
     <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory11.png" alt="Memory: Manal's concert" loading="lazy"></div><figcaption>Enjoying Manal's concert together 🎤</figcaption></figure>
     <figure class="polaroid"><div class="polaroid-photo"><img src="photos/memory12.png" alt="Memory: Working hard" loading="lazy"></div><figcaption>Working hard, hahaha! 😅</figcaption></figure>
+  </div>
+</section>
+<section class="messages">
+  <div class="reveal">
+    <h2>Words from your people 💌</h2>
+    <p class="sub">a little message from each of us</p>
+  </div>
+  <div class="msg-grid">
+    <article class="msg-card reveal" style="--d:0.0s">
+      <p>Happy birthday canım Aya ❤️🥹 So glad my first job brought me to you, being with you feels like school days again 💕 Who cares about work when I have you to do trends with 😂🫶🏻 Love you girl (9liyb f jiht lisr hhhh) ❤️</p>
+      <div class="msg-from"><span class="av" aria-hidden="true">T</span><b>Touria</b></div>
+    </article>
+    <article class="msg-card reveal" style="--d:0.12s">
+      <p>Ozaman happy birthday ahsan architecte fik ya agadir🎉🤍, i wish you a happy life without 3chwa2ia b ism lbaraka 🙏🏻, tachakorat 3la kouli chay2 , hayalah , canim benim🫶🏻</p>
+      <div class="msg-from"><span class="av" aria-hidden="true">M</span><b>Mohamed</b></div>
+    </article>
+    <article class="msg-card reveal" style="--d:0.24s">
+      <p>Happy birthday canim benim l'architecte lghzala bachoucha lfenaa l ani9a moulat a7ssan itlala fik ya jama3at agadir Ida ouatanane, lah ykhlik lina ou laykhlik dima mnwra ljama3a🫶🏻🫂</p>
+      <div class="msg-from"><span class="av" aria-hidden="true">S</span><b>Souhayla</b></div>
+    </article>
+    <article class="msg-card reveal" style="--d:0.36s">
+      <p>Laalaa ayaa , 3iid milad saa3iid bilhanaaae walbaaaniiinn wa rafaaah inchaalah🎉🌝🌝🎉</p>
+      <div class="msg-from"><span class="av" aria-hidden="true">Y</span><b>Yassine</b></div>
+    </article>
+    <article class="msg-card reveal" style="--d:0.48s">
+      <p>Joyeux anniversaire a en güzel mimar 👷‍♀️💕 Lah yfer7ek w yhqql lik ga3 dakchi li katmennai w ykhellik dima de7ka w mnawra. Fer7ana bzaaaf b had ta3arof dyalna fkhbark raki architecte lwahida literft eliha olqitha hayawiya😂 o cute bhalk💗 machaallah llah ihfdk azin ❤️ qobolaat💋💋</p>
+      <div class="msg-from"><span class="av" aria-hidden="true">F</span><b>Fatima</b></div>
+    </article>
+    <article class="msg-card reveal" style="--d:0s">
+      <p>İyi ki doğdun Aya 🎉 🎉 i wich u all the best o bezzaf dyal énergie zwiiina bhalk ❤️ o ya rbi i79e9 lik ga3 dakchi li katmennay 🥰 inshallah had l’année tkoun pleine de belles surprises w moments zwina Canım 🩷</p>
+      <div class="msg-from"><span class="av" aria-hidden="true">Z</span><b>Zakia</b></div>
+    </article>
+    <article class="msg-card reveal" style="--d:.12s">
+      <p>Happy birthday 🎂 Wishing you the best today and always 💗</p>
+      <div class="msg-from"><span class="av" aria-hidden="true">A</span><b>Asma</b></div>
+    </article>
   </div>
 </section>
 </main>
@@ -997,6 +1060,13 @@
     }, { threshold:.15 });
     polaroids.forEach(el => pio.observe(el));
   } else polaroids.forEach(el => el.classList.add('in-view'));
+
+  /* ---------- friends' messages: little burst on tap ---------- */
+  document.querySelectorAll('.msg-card').forEach(card => card.addEventListener('click', () => {
+    const r = card.getBoundingClientRect();
+    fire({ particleCount:40, spread:70, startVelocity:26, scalar:.8,
+      origin:{ x:(r.left + r.width/2)/window.innerWidth, y:(r.top + r.height/2)/window.innerHeight } });
+  }));
 </script>
 </body>
 </html>
